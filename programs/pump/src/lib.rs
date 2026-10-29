@@ -41,7 +41,7 @@ pub use incentives::*;
 pub mod token_incentives;
 pub use token_incentives::*;
 pub use token_incentives::volume_accumulator::{GlobalVolumeAccumulator, UserVolumeAccumulator};
-pub mod volume_sync;
+pub use token_incentives::volume_sync;
 pub use volume_sync::*;
 #[path = "trade_v3.rs"] pub mod trade;
 pub use trade::*;
@@ -1073,12 +1073,12 @@ pub mod pump_recovered {
     pub fn claim_token_incentives(ctx: Context<ClaimTokenIncentives>) -> Result<()> { token_incentives::claim(ctx) }
     pub fn claim_cashback(ctx:Context<ClaimCashback>)->Result<()>{cashback::claim(ctx)}
     pub fn claim_cashback_v2(ctx:Context<ClaimCashbackV2>)->Result<()>{cashback::claim_v2(ctx)}
-    pub fn init_user_volume_accumulator(ctx:Context<InitUserVolume>)->Result<()>{
-      let event=InitUserVolumeAccumulatorEvent{payer:ctx.accounts.payer.key(),user:ctx.accounts.user.key(),timestamp:Clock::get()?.unix_timestamp};ctx.accounts.user_volume_accumulator.user=ctx.accounts.user.key();emit!(event.clone());emit_cpi!(event);Ok(())
-    }
-    pub fn close_user_volume_accumulator(ctx:Context<CloseUserVolume>)->Result<()>{
-      let a=&ctx.accounts.user_volume_accumulator;let event=CloseUserVolumeAccumulatorEvent{total_unclaimed_tokens:a.total_unclaimed_tokens,total_claimed_tokens:a.total_claimed_tokens,current_sol_volume:a.current_sol_volume,last_update_timestamp:a.last_update_timestamp,user:ctx.accounts.user.key(),timestamp:Clock::get()?.unix_timestamp};emit!(event.clone());emit_cpi!(event);Ok(())
-    }
+    pub fn init_user_volume_accumulator(ctx:Context<InitUserVolume>)->Result<()>{token_incentives::init_user_volume_accumulator::execute(ctx)}
+
+
+    pub fn close_user_volume_accumulator(ctx:Context<CloseUserVolume>)->Result<()>{token_incentives::close_user_volume_accumulator::execute(ctx)}
+
+
     pub fn sync_user_volume_accumulator(ctx:Context<SyncUserVolumeAccumulator>)->Result<()>{volume_sync::execute(ctx)}
     pub fn admin_set_idl_authority(ctx:Context<AdminSetIdlAuthority>,idl_authority:Pubkey)->Result<()>{idl_authority::execute(ctx,idl_authority)}
     pub fn migrate_bonding_curve_creator(ctx:Context<MigrateBondingCurveCreator>)->Result<()>{creator_migration::execute(ctx)}
