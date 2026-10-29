@@ -1,4 +1,4 @@
-#[path="admin_set_idl_authority.rs"]pub mod idl_authority;#[path="util/account_name.rs"] pub mod account_name;pub mod buy_v2;
+#[path="admin_set_idl_authority.rs"]pub mod idl_authority;#[path="util/account_name.rs"] pub mod account_name;#[path="buy.rs"]pub mod legacy_buy;pub mod buy_v2;
 pub use buy_v2::*;
 pub mod create_v2;
 pub use create_v2::*;
@@ -16,7 +16,7 @@ pub use holder_distribution::*;
 pub use creator_migration::*;
 #[path="creator/set_creator.rs"]pub mod set_creator;#[path="creator/set_metaplex_creator.rs"]pub mod set_metaplex_creator;
 pub use set_creator::*;pub use set_metaplex_creator::*;
-#[path="buy.rs"]pub mod legacy_buy;
+#[path="legacy_native_payments.rs"]pub mod legacy_native_payments;
 pub use legacy_buy::*;
 #[path="extend_account.rs"]pub mod extend;#[path = "fee_recipient.rs"] pub(crate) mod fee_recipient;pub mod mayhem_virtual_params;
 pub use extend::*;
@@ -80,10 +80,10 @@ use anchor_lang::prelude::*;
 
 
 
-declare_program!(pump_amm);
+declare_id!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P");declare_program!(pump_amm);
 declare_program!(pump_fees);
+pub mod mayhem_program{use super::*;declare_id!("MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e");}
 
-declare_id!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P");
 
 // layout-pad: aligns the next Source site with the original lib.rs line
 
