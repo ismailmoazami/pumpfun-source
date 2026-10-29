@@ -17,11 +17,12 @@ therefore measures layout readiness with the model (`tools/m13.py` builds on lay
 | official normalized / raw | 1023 / 276 | 1023 / 276 |
 | data-offset-equal windows (every data lddw already at the original's in-section offset) | 683 | **1021** of 1023 |
 | `.rodata` bytes aligned with the original (of 32031) | 31682 | 31993 |
+| `.data.rel.ro` slots differing other than `.text` pointers (of 1294) | 130 | 6 (one U-hash pair) |
 | `programs/pump/src/*.rs` path-string order mismatches (of 33) | 32 | 1 (admin_cto internal) |
 | model raw once the unmatched match in size, full original order, data as built | 683 | **1017** |
 | same, original L order (U and D as built) | 481 | 653 |
-| P13 (our order, data assumed equal) | 416 | 428 |
-| LIS of paired order / L adjacent breaks | 884 / 136 | **964 / 30** |
+| P13 (our order, data assumed equal) | 416 | 429 |
+| LIS of paired order / L adjacent breaks | 884 / 136 | **969 / 18** |
 
 The two remaining data mismatches are a `.data.rel.ro` entry pair. Its creation order comes from the
 U block's hash order (TryFromIntError Debug against GlobalVolumeAccumulator Debug). The rest is a
@@ -70,8 +71,20 @@ cst4 S/Y swap whose first user is admin_cto's closure (an unmatched window).
      name in its group.
    - The pump_amm IDL has no `sweep_creator_fee`/`sweep_protocol_fee`: the 3144-B group survives at
      pump_amm ClaimTokenIncentives' position, as in the original.
+   - The mayhem IDL also has `initialize_fee_recipient` (8 accounts, flags from programs/mayhem). Its
+     ToAccountInfos is the smallest name in the 2216-B group, so that group sits at the mayhem slot as
+     in the original. Its metas merge into an existing group, its unused cpi fn is not emitted, and no
+     extra unit appears.
 5. Site-free fns moved into pad lines in collect_creator_fee, migrate, migrate_v2, create_v2,
-   volume_accumulator and trade_v3. Any panic Location lines that matter were checked first (`tools/locs.py`).
+   volume_accumulator and trade_v3. In multi_hop, swap_hop's header and first two statements move to
+   line 478, so complete_fill, token_program_for and require_ata become module items before
+   native_buyback, transfer_input and swap_hop. A second zero-checked curve lamport generic,
+   `pay_out_native`, follows move_native.
+6. **Panic Locations are data.** `tools/drr.py` compares `.data.rel.ro` slot by slot. It found two
+   Locations that my moves had shifted:
+   - burn_pool_authority_lp must stay at migrate.rs:659
+   - `declare_program!(pump_amm)` must start at lib.rs:83 col 1, so `declare_id!` goes on line 82
+   Both are fixed.
 
 ## Not kept / rejected
 
@@ -87,9 +100,6 @@ cst4 S/Y swap whose first user is admin_cto's closure (an unmatched window).
   at the original #[program] position, between `create` and `buy`. With them there, P13 would rise
   428 -> 511 -> 623 (model, `tools/plan.py`). That is the largest remaining L-order item, and it belongs
   to the handler lanes: their final match has to be the program-fn form.
-- 0x119c50 (2216-B ToAccountInfos group) sits at the mayhem slot in the original. The original mayhem
-  IDL probably had a second 8-account instruction, sorted before initialize_mayhem_state, whose infos
-  impl was the smallest name in that group.
-- multi_hop native_buyback/transfer_input sit before the swap_hop unit, but after swap_hop's nested
-  fns. In the original, swap_hop's nested fns are not children of the swap_hop unit.
+- pay_out_native's two instances are in symbol-hash order (856, 1080). The original has 1080, 856.
+- DistributeCreatorFeesV2 vs DistributeCreatorFees derive order. These are two adjacent units, and moving the struct changes codegen.
 - U and D hash order: unreachable from source (crate metadata).
