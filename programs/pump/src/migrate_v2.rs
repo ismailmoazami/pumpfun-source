@@ -365,9 +365,9 @@ fn refund_pool_authority<'info>(a:&MigrateV2<'info>,bump:u8,destination:&Account
 
 // Original: standalone pub helper wrapping anchor_spl's Token-2022 harvest CPI (window 0x95610 calls
 // anchor_spl::token_2022_extensions::harvest_withheld_tokens_to_mint @0x184e38 with vec![source]).
-pub fn harvest_withheld_tokens_to_mint<'info>(token_program:&AccountInfo<'info>,mint:&AccountInfo<'info>,source:&AccountInfo<'info>)->Result<()>{
- anchor_spl::token_2022_extensions::harvest_withheld_tokens_to_mint(CpiContext::new(token_program.clone(),anchor_spl::token_2022_extensions::HarvestWithheldTokensToMint{token_program_id:token_program.clone(),mint:mint.clone()}),vec![source.clone()])
-}
+pub use crate::withheld::harvest_withheld_tokens_to_mint as harvest_withheld_tokens_to_mint;
+// layout-pad
+// layout-pad
 
 #[inline(never)]
 pub fn pool_authority_mint_token_account(a:&MigrateV2)->Result<TokenAccount>{

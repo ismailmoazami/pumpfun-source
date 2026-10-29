@@ -46,7 +46,7 @@ pub use volume_sync::*;
 #[path = "trade_v3.rs"] pub mod trade;
 pub use trade::*;
 #[path="util/constant_product.rs"] pub mod constant_product; #[path="util/fee.rs"] pub mod fee_math;#[path="util/payments.rs"] pub mod payments;
-#[path="util/transfer_fee.rs"] pub mod transfer_fee_recovered;
+#[path="util/transfer_fee.rs"] pub mod transfer_fee_recovered;#[path="util/withheld.rs"] pub mod withheld;#[path="curve_quote_payments.rs"] pub mod quote_payments;#[path="util/user_payments.rs"] pub mod user_payments;
 pub mod global_init;
 pub use global_init::*;
 pub mod cashback;
@@ -3041,27 +3041,27 @@ pub use crate::payments::uqp_transfer_native_curve_unchecked as transfer_native_
 // layout-pad
 // layout-pad
 
-    #[inline(never)]
-    pub fn transfer_from_user<'info>(
-        native: bool,
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: &Account<'info, BondingCurve>,
-        amount: u64,
-        token_program: &Interface<'info, TokenInterface>,
-        quote_decimals: u8,
-        quote_mint: &AccountInfo<'info>,
-        quote_source: Option<&AccountInfo<'info>>,
-        quote_destination: Option<&AccountInfo<'info>>,
-    ) -> Result<()> {
-        if native { return transfer_native(system_program, payer, destination, amount); }
-        let (from, to) = crate::user_quote_accounts(quote_source, quote_destination);
-
-        let authority = payer.to_account_info();
-        crate::sell_v2::quote_token_transfers::transfer_quote_tokens(
-            token_program, from, to, authority, quote_decimals, quote_mint, amount, &[],
-        )
-    }
+pub use crate::user_payments::transfer_from_user as transfer_from_user;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 pub use crate::payments::uqp_transfer_native_owned as transfer_native_owned;
 // layout-pad
 // layout-pad
@@ -3077,27 +3077,27 @@ pub use crate::payments::uqp_transfer_native_owned as transfer_native_owned;
 // layout-pad
 // layout-pad
 
-    #[inline(never)]
-    pub fn transfer_from_user_owned<'info>(
-        native: bool,
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: AccountInfo<'info>,
-        amount: u64,
-        token_program: &Interface<'info, TokenInterface>,
-        quote_decimals: u8,
-        quote_mint: &AccountInfo<'info>,
-        quote_source: Option<&AccountInfo<'info>>,
-        quote_destination: Option<&AccountInfo<'info>>,
-    ) -> Result<()> {
-        if native { return transfer_native_owned(system_program, payer, destination, amount); }
-        let (from, to) = crate::user_quote_accounts(quote_source, quote_destination);
-
-        let authority = payer.to_account_info();
-        crate::sell_v2::quote_token_transfers::transfer_quote_tokens(
-            token_program, from, to, authority, quote_decimals, quote_mint, amount, &[],
-        )
-    }
+pub use crate::user_payments::transfer_from_user_owned as transfer_from_user_owned;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 pub use crate::payments::uqp_transfer_native_curve as transfer_native_curve;
     #[inline(never)]
     pub fn transfer_native_recipient<'info>(
@@ -3115,27 +3115,27 @@ pub use crate::payments::uqp_transfer_native_curve as transfer_native_curve;
         )
     }
 
-    #[inline(never)]
-    pub fn transfer_from_user_recipient<'info>(
-        native: bool,
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: &&UncheckedAccount<'info>,
-        amount: u64,
-        token_program: &Interface<'info, TokenInterface>,
-        quote_decimals: u8,
-        quote_mint: &AccountInfo<'info>,
-        quote_source: Option<&AccountInfo<'info>>,
-        quote_destination: Option<&AccountInfo<'info>>,
-    ) -> Result<()> {
-        if native { return transfer_native_recipient(system_program, payer, destination, amount); }
-        let (from, to) = crate::user_quote_accounts(quote_source, quote_destination);
-
-        let authority = payer.to_account_info();
-        crate::sell_v2::quote_token_transfers::transfer_quote_tokens(
-            token_program, from, to, authority, quote_decimals, quote_mint, amount, &[],
-        )
-    }
+pub use crate::user_payments::transfer_from_user_recipient as transfer_from_user_recipient;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 }
 
