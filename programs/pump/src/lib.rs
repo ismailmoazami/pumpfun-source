@@ -16,7 +16,7 @@ pub use holder_distribution::*;
 pub use creator_migration::*;
 #[path="creator/set_creator.rs"]pub mod set_creator;#[path="creator/set_metaplex_creator.rs"]pub mod set_metaplex_creator;
 pub use set_creator::*;pub use set_metaplex_creator::*;
-#[path="legacy_native_payments.rs"]pub mod legacy_native_payments;
+#[path="v2_native_payments.rs"]pub mod v2_native_payments;#[path="legacy_native_payments.rs"]pub mod legacy_native_payments;
 pub use legacy_buy::*;
 #[path="extend_account.rs"]pub mod extend;#[path = "fee_recipient.rs"] pub(crate) mod fee_recipient;pub mod mayhem_virtual_params;
 pub use extend::*;

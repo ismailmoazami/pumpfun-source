@@ -112,13 +112,13 @@ pub fn collect_creator_fee(ctx:Context<crate::CollectCreatorFee>)->Result<()>{
 }}}
 #[inline]fn transfer_lamports<'info>(system_program:&Program<'info,System>,from:impl ToAccountInfo<'info>,to:impl ToAccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]]])->Result<()>{anchor_lang::system_program::transfer(CpiContext::new_with_signer(system_program.to_account_info(),anchor_lang::system_program::Transfer{from:from.to_account_info(),to:to.to_account_info()},signer_seeds),amount)}
 
-
-
-
-
-
-
-
+pub fn execute(ctx:Context<CollectCreatorFeeV2>)->Result<()>{
+ let a=&ctx.accounts;
+ if let Some((amount,quote_mint))=collect(&a.creator,a.creator_token_account.as_ref(),&a.creator_vault,ctx.bumps.creator_vault,a.creator_vault_token_account.as_ref(),a.quote_mint.decimals,a.quote_mint.as_ref().as_ref(),&a.quote_token_program,a.system_program.as_ref())?{
+  let event=CollectCreatorFeeEvent{timestamp:Clock::get()?.unix_timestamp,creator:a.creator.key(),creator_fee:amount,quote_mint};emit!(event);emit_cpi!(event);
+ }
+ Ok(())
+}
 
 
 
@@ -237,13 +237,13 @@ pub use crate::payments::collect_transfer_tokens as transfer_tokens;
 // layout-pad
 // layout-pad
 
-pub fn execute(ctx:Context<CollectCreatorFeeV2>)->Result<()>{
- let a=&ctx.accounts;
- if let Some((amount,quote_mint))=collect(&a.creator,a.creator_token_account.as_ref(),&a.creator_vault,ctx.bumps.creator_vault,a.creator_vault_token_account.as_ref(),a.quote_mint.decimals,a.quote_mint.as_ref().as_ref(),&a.quote_token_program,a.system_program.as_ref())?{
-  let event=CollectCreatorFeeEvent{timestamp:Clock::get()?.unix_timestamp,creator:a.creator.key(),creator_fee:amount,quote_mint};emit!(event);emit_cpi!(event);
- }
- Ok(())
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 pub use crate::payments::collect_transfer_vault_tokens as transfer_vault_tokens;
 // layout-pad

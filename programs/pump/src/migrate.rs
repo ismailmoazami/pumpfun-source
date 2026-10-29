@@ -533,12 +533,12 @@ pub fn init_pump_amm_boost<'info>(ctx:&Context<'_,'_,'_,'info,Migrate<'info>>)->
 
 
 // The original migration skips an empty refund before constructing signer seeds.
-#[inline(never)]
-fn refund_pool_authority<'info>(a:&Migrate<'info>,bump:u8,destination:&AccountInfo<'info>,amount:u64)->Result<()>{
- if amount==0{return Ok(());}
- let transfer=|signer_seeds:&[&[&[u8]];1]|crate::migrate::transfer_native(a.system_program.as_ref(),&a.pool_authority,destination,amount,signer_seeds);
- transfer(&[&[b"pool-authority",a.mint.key().as_ref(),&[bump]]])
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 pub use crate::payments::migrate_transfer_native as transfer_native;
 // layout-pad
@@ -549,9 +549,9 @@ pub use crate::payments::migrate_transfer_native as transfer_native;
 #[path="migration_native_payments.rs"]
 pub mod native_payments;
 
-pub fn close_pool_authority_account<'info>(a:&Migrate<'info>,bump:u8,account:&AccountInfo<'info>)->Result<()>{
- close_token_account(a,account,&[&[b"pool-authority",a.mint.key().as_ref(),&[bump]]])
-}
+// layout-pad
+// layout-pad
+// layout-pad
 
 fn close_token_account<'info>(a:&Migrate<'info>,account:&AccountInfo<'info>,signer_seeds:&[&[&[u8]]])->Result<()>{
  anchor_spl::token_2022::close_account(CpiContext::new_with_signer(a.token_2022_program.to_account_info(),anchor_spl::token_2022::CloseAccount{account:account.clone(),destination:a.withdraw_authority.to_account_info(),authority:a.pool_authority.to_account_info()},signer_seeds))
@@ -577,80 +577,9 @@ fn close_temp_account<'info>(a:&Migrate<'info>,account:&AccountInfo<'info>,mint:
  anchor_spl::token_2022::close_account(CpiContext::new_with_signer(base_token_program(AsRef::<AccountInfo>::as_ref(mint),&a.token_program,&a.token_2022_program),anchor_spl::token_2022::CloseAccount{account:account.clone(),destination:a.withdraw_authority.to_account_info(),authority:a.pool_authority.to_account_info()},signer_seeds))
 }
 
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
-// layout-pad
+pub fn close_pool_authority_account<'info>(a:&Migrate<'info>,bump:u8,account:&AccountInfo<'info>)->Result<()>{
+ close_token_account(a,account,&[&[b"pool-authority",a.mint.key().as_ref(),&[bump]]])
+}
 // layout-pad
 // layout-pad
 #[inline(never)]
@@ -659,6 +588,77 @@ fn burn_pool_authority_lp<'info>(ctx:&Context<'_,'_,'_,'info,Migrate<'info>>)->R
   let data=a.user_pool_token_account.data.borrow();StateWithExtensions::<SplAccount>::unpack(&data)?.base.amount};
  burn_lp(a,amount,&[&[b"pool-authority",a.mint.key().as_ref(),&[ctx.bumps.pool_authority]]])
 }
+// layout-pad
+#[inline(never)]
+fn refund_pool_authority<'info>(a:&Migrate<'info>,bump:u8,destination:&AccountInfo<'info>,amount:u64)->Result<()>{
+ if amount==0{return Ok(());}
+ let transfer=|signer_seeds:&[&[&[u8]];1]|crate::migrate::transfer_native(a.system_program.as_ref(),&a.pool_authority,destination,amount,signer_seeds);
+ transfer(&[&[b"pool-authority",a.mint.key().as_ref(),&[bump]]])
+}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 #[inline(always)]
 fn burn_lp<'info>(a:&Migrate<'info>,amount:u64,signer_seeds:&[&[&[u8]]])->Result<()>{
  anchor_spl::token_2022::burn(CpiContext::new_with_signer(a.token_2022_program.to_account_info(),anchor_spl::token_2022::Burn{mint:a.lp_mint.to_account_info(),from:a.user_pool_token_account.to_account_info(),authority:a.pool_authority.to_account_info()},signer_seeds),amount)

@@ -1040,8 +1040,8 @@ use crate::legacy_sell::fee_cpi::fee as ceil_fee;
 
 
 
-#[path="v2_native_payments.rs"]
-pub mod native_payments;
+
+pub use crate::v2_native_payments as native_payments;
 
 #[path="v2_token_transfers.rs"]
 pub mod token_transfers;
