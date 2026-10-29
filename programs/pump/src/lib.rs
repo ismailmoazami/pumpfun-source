@@ -4,7 +4,7 @@ pub mod create_v2;
 pub use create_v2::*;
 #[path="creator/admin_cto.rs"]pub mod admin_cto;
 pub use admin_cto::*;
-#[path="creator/collect_creator_fee.rs"]pub mod collect_v2;
+pub mod creator{#[path="collect_creator_fee.rs"]pub mod collect_creator_fee;}pub use creator::collect_creator_fee as collect_v2;
 pub use collect_v2::*;
 #[path="creator/distribute_creator_fees.rs"]pub mod distribution;
 pub use distribution::*;
@@ -82,7 +82,7 @@ use anchor_lang::prelude::*;
 
 declare_id!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P");declare_program!(pump_amm);
 declare_program!(pump_fees);
-pub mod mayhem_program{use super::*;declare_id!("MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e");}
+declare_program!(mayhem);
 
 
 // layout-pad: aligns the next Source site with the original lib.rs line

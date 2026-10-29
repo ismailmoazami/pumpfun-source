@@ -2,7 +2,7 @@ use crate::*;
 use spl_type_length_value::variable_len_pack::VariableLenPack;
 use anchor_spl::{token_interface::{self,Mint,TokenAccount},token_2022::Token2022,associated_token::AssociatedToken};
 use anchor_lang::solana_program::{instruction::{Instruction,AccountMeta},program::invoke_signed};
-pub use crate::mayhem_program::ID as MAYHEM_ID;const UNSUPPORTED_QUOTE_MINT:Pubkey=anchor_lang::solana_program::pubkey!("9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP");const PUMP_QUOTE_MINT:Pubkey=anchor_lang::solana_program::pubkey!("pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn");
+pub use crate::mayhem::ID as MAYHEM_ID;const UNSUPPORTED_QUOTE_MINT:Pubkey=anchor_lang::solana_program::pubkey!("9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP");const PUMP_QUOTE_MINT:Pubkey=anchor_lang::solana_program::pubkey!("pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn");
 #[derive(AnchorSerialize,Clone)]
 pub struct CreationOptionU64(pub u64);
 impl AnchorDeserialize for CreationOptionU64 {
@@ -67,78 +67,78 @@ pub use crate::payments::initialize_mayhem;
 // layout-pad
 
 // Client-side instruction/account binding only; no companion implementation.
-pub mod mayhem_interface {
- use super::*;
- pub mod instruction {
-  use super::*;
-  #[derive(AnchorSerialize,AnchorDeserialize)]
-  pub struct InitializeMayhemState;
-  impl Discriminator for InitializeMayhemState {const DISCRIMINATOR:&'static[u8]=&[157,189,94,72,85,69,204,45];}
-  impl anchor_lang::InstructionData for InitializeMayhemState {}
- }
- pub mod cpi {
-  use super::*;
-  pub fn initialize_mayhem_state<'a,'b,'c,'info>(ctx:anchor_lang::context::CpiContext<'a,'b,'c,'info,accounts::InitializeMayhemState<'info>>)->anchor_lang::Result<()>{
-   let ix={
-    let ix=instruction::InitializeMayhemState;
-    let mut data=Vec::with_capacity(256);
-    data.extend_from_slice(<instruction::InitializeMayhemState as anchor_lang::Discriminator>::DISCRIMINATOR);
-    AnchorSerialize::serialize(&ix,&mut data).map_err(|_|anchor_lang::error::ErrorCode::InstructionDidNotSerialize)?;
-    let accounts=ctx.to_account_metas(None);
-    anchor_lang::solana_program::instruction::Instruction{program_id:ctx.program.key(),accounts,data}
-   };
-   let mut acc_infos=ctx.to_account_infos();
-   anchor_lang::solana_program::program::invoke_signed(&ix,&acc_infos,ctx.signer_seeds).map_or_else(|e|Err(Into::into(e)),|_|Ok(()))
-  }
-  pub mod accounts {
-   use super::*;
-   pub struct InitializeMayhemState<'info>{
-    pub payer:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub global_params:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub mint_authority:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub sol_vault:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub mint:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub token_vault:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub mayhem_state:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub system_program:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub token_program:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-    pub associated_token_program:anchor_lang::solana_program::account_info::AccountInfo<'info>,
-   }
-   impl<'info> anchor_lang::ToAccountMetas for InitializeMayhemState<'info>{
-    fn to_account_metas(&self,_is_signer:Option<bool>)->Vec<anchor_lang::solana_program::instruction::AccountMeta>{
-     let mut account_metas=vec![];
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new(anchor_lang::Key::key(&self.payer),true));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new_readonly(anchor_lang::Key::key(&self.global_params),false));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new_readonly(anchor_lang::Key::key(&self.mint_authority),true));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new(anchor_lang::Key::key(&self.sol_vault),false));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new_readonly(anchor_lang::Key::key(&self.mint),false));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new(anchor_lang::Key::key(&self.token_vault),false));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new(anchor_lang::Key::key(&self.mayhem_state),false));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new_readonly(anchor_lang::Key::key(&self.system_program),false));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new_readonly(anchor_lang::Key::key(&self.token_program),false));
-     account_metas.push(anchor_lang::solana_program::instruction::AccountMeta::new_readonly(anchor_lang::Key::key(&self.associated_token_program),false));
-     account_metas
-    }
-   }
-   impl<'info> anchor_lang::ToAccountInfos<'info> for InitializeMayhemState<'info>{
-    fn to_account_infos(&self)->Vec<anchor_lang::solana_program::account_info::AccountInfo<'info>>{
-     let mut account_infos=vec![];
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.payer));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.global_params));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.mint_authority));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.sol_vault));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.mint));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.token_vault));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.mayhem_state));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.system_program));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.token_program));
-     account_infos.extend(anchor_lang::ToAccountInfos::to_account_infos(&self.associated_token_program));
-     account_infos
-    }
-   }
-  }
- }
-}
+pub use crate::mayhem as mayhem_interface;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 pub use pump_token_ext::quote_extensions_supported;
 pub const MAX_NAME_LENGTH:usize=32;pub const MAX_SYMBOL_LENGTH:usize=13;pub const MAX_URI_LENGTH:usize=200;
