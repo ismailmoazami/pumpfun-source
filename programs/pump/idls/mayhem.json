@@ -8,6 +8,56 @@
   },
   "instructions": [
     {
+      "name": "initialize_fee_recipient",
+      "discriminator": [
+        218,
+        87,
+        142,
+        200,
+        206,
+        197,
+        22,
+        200
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "wsol_mint"
+        },
+        {
+          "name": "fee_recipient",
+          "writable": true
+        },
+        {
+          "name": "fee_recipient_ata",
+          "writable": true
+        },
+        {
+          "name": "global_params",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "initialize_mayhem_state",
       "discriminator": [
         157,
