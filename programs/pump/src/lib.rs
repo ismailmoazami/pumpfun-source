@@ -8,7 +8,7 @@ pub use admin_cto::*;
 pub use collect_v2::*;
 #[path="creator/distribute_creator_fees.rs"]pub mod distribution;
 pub use distribution::*;
-pub mod minimum;
+pub use distribution::minimum;
 pub use minimum::*;
 #[path="creator/distribute_fee_to_holders.rs"]pub mod holder_distribution;
 pub use holder_distribution::*;
