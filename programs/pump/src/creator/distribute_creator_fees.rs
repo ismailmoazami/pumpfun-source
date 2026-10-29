@@ -18,17 +18,6 @@ pub use crate::migrate::DistributionCurve;
 // layout-pad
 // layout-pad
 #[derive(Accounts)]
-pub struct DistributeCreatorFees<'info>{
- pub mint:InterfaceAccount<'info,anchor_spl::token_interface::Mint>,
- #[account(seeds=[b"bonding-curve",mint.key().as_ref()],bump,constraint=bonding_curve.quote_mint==Pubkey::default() @ PumpError::UnsupportedQuoteMint,constraint=bonding_curve.creator==sharing_config.key() @ PumpError::BondingCurveAndSharingConfigCreatorMismatch)]pub bonding_curve:Account<'info,BondingCurve>,
- #[account(seeds=[b"sharing-config",mint.key().as_ref()],bump,seeds::program=FEES,has_one=mint @ PumpError::MintDoesNotMatchBondingCurve)]pub sharing_config:Account<'info,SharingConfig>,
- #[account(mut,seeds=[b"creator-vault",bonding_curve.creator.as_ref()],bump)]pub creator_vault:AccountInfo<'info>,
- pub system_program:Program<'info,System>,
- /// CHECK: event PDA.
- #[account(seeds=[b"__event_authority"],bump)]pub event_authority:AccountInfo<'info>,
- pub program:Program<'info,crate::program::PumpRecovered>,
-}
-#[derive(Accounts)]
 pub struct DistributeCreatorFeesV2<'info>{
  #[account(mut)]pub payer:Signer<'info>,
  pub mint:InterfaceAccount<'info,anchor_spl::token_interface::Mint>,
@@ -46,6 +35,17 @@ pub struct DistributeCreatorFeesV2<'info>{
  pub quote_mint:Box<InterfaceAccount<'info,anchor_spl::token_interface::Mint>>,
  pub quote_token_program:Interface<'info,anchor_spl::token_interface::TokenInterface>,
  pub associated_token_program:Program<'info,anchor_spl::associated_token::AssociatedToken>,
+}
+#[derive(Accounts)]
+pub struct DistributeCreatorFees<'info>{
+ pub mint:InterfaceAccount<'info,anchor_spl::token_interface::Mint>,
+ #[account(seeds=[b"bonding-curve",mint.key().as_ref()],bump,constraint=bonding_curve.quote_mint==Pubkey::default() @ PumpError::UnsupportedQuoteMint,constraint=bonding_curve.creator==sharing_config.key() @ PumpError::BondingCurveAndSharingConfigCreatorMismatch)]pub bonding_curve:Account<'info,BondingCurve>,
+ #[account(seeds=[b"sharing-config",mint.key().as_ref()],bump,seeds::program=FEES,has_one=mint @ PumpError::MintDoesNotMatchBondingCurve)]pub sharing_config:Account<'info,SharingConfig>,
+ #[account(mut,seeds=[b"creator-vault",bonding_curve.creator.as_ref()],bump)]pub creator_vault:AccountInfo<'info>,
+ pub system_program:Program<'info,System>,
+ /// CHECK: event PDA.
+ #[account(seeds=[b"__event_authority"],bump)]pub event_authority:AccountInfo<'info>,
+ pub program:Program<'info,crate::program::PumpRecovered>,
 }
 
 fn validate_shareholder_recipient(shareholder:&Shareholder,recipient:&AccountInfo)->Result<()>{
