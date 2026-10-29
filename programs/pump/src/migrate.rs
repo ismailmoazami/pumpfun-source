@@ -668,3 +668,15 @@ fn pay_migration_fee<'info>(a:&Migrate<'info>,pool_authority:&UncheckedAccount<'
  a.bonding_curve.sub_lamports(fee)?;pool_authority.add_lamports(fee)?;
  Ok(())
 }
+#[derive(Clone)]pub struct DistributionCurve{pub creator:Pubkey,pub quote_mint:Pubkey}
+impl Owner for DistributionCurve{fn owner()->Pubkey{crate::ID}}
+impl AccountSerialize for DistributionCurve{}
+impl AccountDeserialize for DistributionCurve{
+ fn try_deserialize(buf:&mut &[u8])->Result<Self>{Self::try_deserialize_unchecked(buf)}
+ fn try_deserialize_unchecked(buf:&mut &[u8])->Result<Self>{
+  if buf.len()<49 || buf[..8]!=[23,183,248,55,96,216,172,96]{return Err(anchor_lang::solana_program::program_error::ProgramError::InvalidAccountData.into());}
+  for offset in [48usize,81,82,123,124]{if buf.len()>offset{let _=bool::deserialize(&mut &buf[offset..offset+1])?;}}
+  let creator=if buf.len()>=81{Pubkey::new_from_array(buf[49..81].try_into().unwrap())}else{Pubkey::default()};
+  let quote_mint=if buf.len()>=115{Pubkey::new_from_array(buf[83..115].try_into().unwrap())}else{Pubkey::default()};Ok(Self{creator,quote_mint})
+ }
+}
