@@ -45,7 +45,7 @@ pub mod volume_sync;
 pub use volume_sync::*;
 #[path = "trade_v3.rs"] pub mod trade;
 pub use trade::*;
-#[path="util/constant_product.rs"] pub mod constant_product; #[path="util/fee.rs"] pub mod fee_math;
+#[path="util/constant_product.rs"] pub mod constant_product; #[path="util/fee.rs"] pub mod fee_math;#[path="util/payments.rs"] pub mod payments;
 #[path="util/transfer_fee.rs"] pub mod transfer_fee_recovered;
 pub mod global_init;
 pub use global_init::*;
@@ -2906,11 +2906,11 @@ pub struct LegacySell<'info>{
 
 #[derive(AnchorSerialize,Clone)]
 pub struct OptionBool(pub bool);
-impl AnchorDeserialize for OptionBool {
- fn deserialize_reader<R:std::io::Read>(reader:&mut R)->std::io::Result<Self>{
-  let mut b=[0u8];match reader.read_exact(&mut b){Err(e) if e.kind()==std::io::ErrorKind::UnexpectedEof=>Ok(Self(false)),Err(e)=>Err(e),Ok(())=>match b[0]{0=>Ok(Self(false)),1=>Ok(Self(true)),value=>Err(std::io::Error::new(std::io::ErrorKind::InvalidData,format!("Invalid bool representation: {}",value)))}}
- }
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 #[event]
 #[derive(Clone)]

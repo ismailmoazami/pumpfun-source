@@ -822,48 +822,48 @@ pub fn transfer_quote_out<'info>(token_program:&AccountInfo<'info>,from:&Uncheck
 
 
 
-pub fn trade_event(curve:&BondingCurve,global:&Global,volume:&crate::UserVolumeAccumulator,user:&Pubkey,mint:&Pubkey,is_buy:bool,token_amount:u64,quote_amount:u64,fees:&crate::trade::TradeFees,buyback_fee:u64,unparsed_trailing_field:u64,ix_name:&str,timestamp:i64)->TradeEvent{
-    let virtual_quote_reserves=curve.virtual_quote_reserves;let real_quote_reserves=curve.real_quote_reserves;
-    let quote_mint=curve.quote_mint;let is_sol=quote_mint==Pubkey::default();
-    TradeEvent{
-        quote_mint:curve.quote_mint,
-        mint:*mint,
-        sol_amount:if is_sol{quote_amount}else{0},
-        is_buy,
-        token_amount,
-        user:*user,
-        timestamp,
-        virtual_sol_reserves:if is_sol{virtual_quote_reserves}else{0},
-        virtual_token_reserves:curve.virtual_token_reserves,
-        real_token_reserves:curve.real_token_reserves,
-        fee_recipient:Pubkey::default(),
-        fee_basis_points:fees.protocol_fee_bps,
-        fee:fees.protocol_fee,
-        creator:curve.creator,
-        creator_fee_basis_points:fees.creator_fee_bps,
-        creator_fee:fees.creator_fee,
-        track_volume:false,
-        total_unclaimed_tokens:volume.total_unclaimed_tokens,
-        total_claimed_tokens:volume.total_claimed_tokens,
-        current_sol_volume:volume.current_sol_volume,
-        last_update_timestamp:volume.last_update_timestamp,
-        ix_name:ix_name.to_string(),
-        mayhem_mode:curve.is_mayhem_mode,
-        cashback_fee_basis_points:0,
-        cashback:0,
-        real_sol_reserves:if is_sol{real_quote_reserves}else{0},
-        buyback_fee_basis_points:if curve.is_mayhem_mode{0}else{global.buyback_basis_points},
-        buyback_fee,
-        shareholders:vec![],
-        quote_amount,
-        virtual_quote_reserves,
-        real_quote_reserves,
-        holder_rewards_bps:if curve.is_holder_reward{fees.creator_fee_bps}else{0},
-        holder_rewards:if curve.is_holder_reward{fees.creator_fee}else{0},
-        creator_fee_unclaimed:curve.creator_fee,
-        unparsed_trailing_field,
-    }
-}
+pub use crate::payments::trade_event;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 #[inline(never)]
 pub fn transfer_base_out<'info>(token_program:&AccountInfo<'info>,from:&InterfaceAccount<'info,TokenAccount>,to:&InterfaceAccount<'info,TokenAccount>,authority:&Account<'info,BondingCurve>,decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1])->Result<()>{
     if amount==0{return Ok(());}

@@ -348,10 +348,10 @@ pub fn distribute_native<'info>(sharing_config:&Account<'info,SharingConfig>,cre
 
 pub use self::v2::{execute_v2, get_token_distribution_amounts};
 
-/// Shareholders of an optional fee-sharing config; empty or undecodable data reads as none.
-#[inline(never)]
-pub fn sharing_config_shareholders(account:&AccountInfo)->Result<Option<Vec<Shareholder>>>{
- if account.data_is_empty(){return Ok(None);}
- let data=account.try_borrow_data()?;
- match SharingConfig::try_deserialize(&mut &data[..]){Ok(config)=>Ok(Some(config.shareholders)),Err(_)=>Ok(None)}
-}
+pub use crate::payments::sharing_config_shareholders;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad

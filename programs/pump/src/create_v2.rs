@@ -48,23 +48,23 @@ pub struct CreateV2<'info>{
  /// CHECK: unused for normal creation.
  #[account(mut)]pub mayhem_token_vault:UncheckedAccount<'info>,
 }
-#[inline(never)]pub fn initialize_mayhem<'info>(ctx:&Context<'_, '_, '_, 'info, CreateV2<'info>>)->Result<()>{
- let a=&ctx.accounts;
- mayhem_interface::cpi::initialize_mayhem_state(CpiContext::new_with_signer(
-  a.mayhem_program_id.to_account_info(),mayhem_interface::cpi::accounts::InitializeMayhemState{
-   payer:a.user.to_account_info(),
-   mint_authority:a.mint_authority.to_account_info(),
-   sol_vault:a.sol_vault.to_account_info(),
-   mint:a.mint.to_account_info(),
-   token_vault:a.mayhem_token_vault.to_account_info(),
-   global_params:a.global_params.to_account_info(),
-   mayhem_state:a.mayhem_state.to_account_info(),
-   system_program:a.system_program.to_account_info(),
-   token_program:a.token_program.to_account_info(),
-   associated_token_program:a.associated_token_program.to_account_info(),
-  },&[&[b"mint-authority",&[ctx.bumps.mint_authority]]],
- ))
-}
+pub use crate::payments::initialize_mayhem;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 // Client-side instruction/account binding only; no companion implementation.
 pub mod mayhem_interface {
