@@ -59,7 +59,7 @@ pub use set_params::*;
 pub use idl_authority::*;
 
 pub use mayhem_virtual_params::*;
-pub mod trade_types;
+
 
 use anchor_lang::prelude::*;
 
@@ -1939,10 +1939,10 @@ fn protocol_fee_split(buyback_basis_points: u64, protocol_fee: u64, is_mayhem_mo
             .expect("buyback_fee never exceeds protocol_fee");
     (buyback_fee, remaining)
 }
-
-
-
-
+#[inline(never)]
+pub(crate) fn split_protocol_fee(global: &crate::Global, protocol_fee: u64, is_mayhem_mode: bool) -> (u64, u64) {
+    protocol_fee_split(global.buyback_basis_points, protocol_fee, is_mayhem_mode)
+}
 
 
 impl Global {
@@ -1986,7 +1986,7 @@ impl Global {
      for slot in self.whitelisted_quote_mints.iter_mut(){if *slot==quote_mint{*slot=Pubkey::default();return Ok(());}} err!(PumpError::QuoteMintNotWhitelisted)
         }
 }
-
+pub mod trade_types;
 /// Checked normal-buy quote calculation precedes the fee CPI.
 pub fn buy_quote(curve: &trade_types::BondingCurve, amount: u64) -> Result<u128> {
     let numerator = u128::from(amount) * u128::from(curve.virtual_quote_reserves);
@@ -2454,7 +2454,7 @@ impl trade_types::BondingCurve {
   numerator.checked_div(self.virtual_token_reserves as u128+amount as u128).ok_or_else(||error!(PumpError::DivisionByZero))
  }
 }
-
+#[inline(never)] pub fn tokens_for_quote(curve:&crate::trade_types::BondingCurve,quote:u64)->Result<u128>{let effective=quote.checked_sub(1).ok_or(PumpError::Overflow)?;crate::constant_product::output(effective as u128,curve.virtual_quote_reserves as u128,curve.virtual_token_reserves as u128)}
 #[inline(never)]
 pub(crate) fn buy_fee_market_cap(curve:&trade_types::BondingCurve,mint:&anchor_spl::token_interface::Mint)->Result<u128>{
  let supply=if curve.is_mayhem_mode {curve.token_total_supply}else{mint.supply};
@@ -2966,14 +2966,6 @@ pub struct CloseUserVolumeAccumulatorEvent{pub user:Pubkey,pub timestamp:i64,pub
 
 
 
-/// Split protocol fees after the curve payment, preserving the buyback invariants.
-#[inline(never)]
-pub(crate) fn split_protocol_fee(
-    global: &crate::Global,
-    protocol_fee: u64,
-    is_mayhem_mode: bool,
-) -> (u64, u64) {
-    protocol_fee_split(global.buyback_basis_points, protocol_fee, is_mayhem_mode)
 
 
 
@@ -2981,7 +2973,15 @@ pub(crate) fn split_protocol_fee(
 
 
 
-}
+
+
+
+
+
+
+
+
+
 
 fn update_global_authority_handler(ctx:Context<UpdateGlobalAuthority>)->Result<()>{
     ctx.accounts.global.authority=ctx.accounts.new_authority.key();
