@@ -79,8 +79,8 @@ use anchor_lang::prelude::*;
 
 
 
-
-declare_id!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P");declare_program!(pump_amm);
+declare_id!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P");
+declare_program!(pump_amm);
 declare_program!(pump_fees);
 declare_program!(mayhem);
 
