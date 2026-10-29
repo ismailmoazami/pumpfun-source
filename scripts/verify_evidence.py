@@ -32,6 +32,8 @@ def main():
         assert b58(p[4:])==m['programdata']
         assert struct.unpack_from('<I',d)[0]==3
         assert struct.unpack_from('<Q',d,4)[0]==m['last_deploy_slot']
+        if d[12] not in (0,1):
+            raise ValueError(f'{folder.relative_to(ROOT)}: invalid ProgramData upgrade authority option tag {d[12]}')
         assert (b58(d[13:45]) if d[12] else None)==m['upgrade_authority']
         assert d[45:]==b and len(b)==m['payload_bytes'] and len(d)==m['programdata_bytes']
         assert m['genesis_hash']=='5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d'
