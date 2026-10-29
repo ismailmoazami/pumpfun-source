@@ -294,11 +294,11 @@ pub(crate) fn overflow() -> anchor_lang::error::Error { error!(PumpError::Overfl
 
 
 
-#[inline(never)]
-pub(super) fn control_account(account: &AccountInfo<'_>, mint: Pubkey) -> Result<Option<u64>> {
-    let data = account.try_borrow_data()?;
-    control_entry(&data, &mint)
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 // layout-pad(39): aligns the next Source site with the original line
 
@@ -357,11 +357,11 @@ pub(super) fn quote_control<'a, 'info>(account: Option<&'a AccountInfo<'info>>) 
 
 
 
-
-
-
-
-
+#[inline(never)]
+pub(super) fn control_account(account: &AccountInfo<'_>, mint: Pubkey) -> Result<Option<u64>> {
+    let data = account.try_borrow_data()?;
+    control_entry(&data, &mint)
+}
 
 
 
@@ -529,10 +529,10 @@ fn check_quote_mint_extensions(mint:&AccountInfo)->Result<()>{
  Ok(())
 }
 
-#[inline(never)]
-fn create_event<'info>(name:String,symbol:String,uri:String,creator:Pubkey,mint:&InterfaceAccount<'info,Mint>,user:&Signer<'info>,bonding_curve:&Account<'info,trade_types::BondingCurve>,token_program:&Program<'info,Token2022>,is_mayhem_mode:bool,creator_fee_bps:u64)->Result<CreateEvent>{
- let virtual_token_reserves=bonding_curve.virtual_token_reserves;let virtual_sol_reserves=bonding_curve.virtual_quote_reserves;let real_token_reserves=bonding_curve.real_token_reserves;let token_total_supply=bonding_curve.token_total_supply;let is_holder_reward=bonding_curve.is_holder_reward;let depth=bonding_curve.depth;let quote_mint=bonding_curve.quote_mint;Ok(CreateEvent{name,symbol,uri,mint:mint.key(),bonding_curve:bonding_curve.key(),user:user.key(),creator,timestamp:Clock::get()?.unix_timestamp,virtual_token_reserves,virtual_sol_reserves,real_token_reserves,token_total_supply,token_program:token_program.key(),is_mayhem_mode,is_cashback_enabled:false,quote_mint:quote_mint,virtual_quote_reserves:virtual_sol_reserves,creator_fee_bps,is_holder_reward,depth})
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 
 
@@ -808,9 +808,7 @@ pub fn execute<'info>(ctx:Context<'_,'_,'_,'info,CreateV2<'info>>,name:String,sy
  let event=create_event(name,symbol,uri,creator,&a.mint,&a.user,&a.bonding_curve,&a.token_program,is_mayhem_mode,fee)?;
  emit!(event);emit_cpi!(event);Ok(())
 }
-
-
-
-
-
-
+#[inline(never)]
+fn create_event<'info>(name:String,symbol:String,uri:String,creator:Pubkey,mint:&InterfaceAccount<'info,Mint>,user:&Signer<'info>,bonding_curve:&Account<'info,trade_types::BondingCurve>,token_program:&Program<'info,Token2022>,is_mayhem_mode:bool,creator_fee_bps:u64)->Result<CreateEvent>{
+ let virtual_token_reserves=bonding_curve.virtual_token_reserves;let virtual_sol_reserves=bonding_curve.virtual_quote_reserves;let real_token_reserves=bonding_curve.real_token_reserves;let token_total_supply=bonding_curve.token_total_supply;let is_holder_reward=bonding_curve.is_holder_reward;let depth=bonding_curve.depth;let quote_mint=bonding_curve.quote_mint;Ok(CreateEvent{name,symbol,uri,mint:mint.key(),bonding_curve:bonding_curve.key(),user:user.key(),creator,timestamp:Clock::get()?.unix_timestamp,virtual_token_reserves,virtual_sol_reserves,real_token_reserves,token_total_supply,token_program:token_program.key(),is_mayhem_mode,is_cashback_enabled:false,quote_mint:quote_mint,virtual_quote_reserves:virtual_sol_reserves,creator_fee_bps,is_holder_reward,depth})
+}
