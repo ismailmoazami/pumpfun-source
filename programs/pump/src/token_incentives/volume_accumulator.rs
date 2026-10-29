@@ -431,7 +431,7 @@ impl GlobalVolumeAccumulator {
             .expect("Overflowing sol volume");
     }
 }
-#[inline]
+
 fn time_index(value: i64) -> usize {
     usize::try_from(value).expect("SVM is 64-bit")
 }
