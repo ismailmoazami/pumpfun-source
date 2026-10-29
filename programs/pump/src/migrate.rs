@@ -540,11 +540,11 @@ fn refund_pool_authority<'info>(a:&Migrate<'info>,bump:u8,destination:&AccountIn
  transfer(&[&[b"pool-authority",a.mint.key().as_ref(),&[bump]]])
 }
 
-#[inline(never)]
-pub fn transfer_native<'info>(system_program:&AccountInfo<'info>,source:&UncheckedAccount<'info>,destination:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1])->Result<()>{
- if amount==0{return Ok(());}
- anchor_lang::system_program::transfer(CpiContext::new_with_signer(system_program.clone(),anchor_lang::system_program::Transfer{from:source.to_account_info(),to:destination.clone()},signer_seeds),amount)
-}
+pub use crate::payments::migrate_transfer_native as transfer_native;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 #[path="migration_native_payments.rs"]
 pub mod native_payments;

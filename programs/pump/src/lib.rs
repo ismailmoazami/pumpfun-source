@@ -2995,51 +2995,51 @@ pub mod user_quote_payments {
     use anchor_spl::token_interface::TokenInterface;
     use crate::trade_types::BondingCurve;
 
-    #[inline(never)]
-    pub fn transfer_native<'info>(
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: &Account<'info, BondingCurve>,
-        amount: u64,
-    ) -> Result<()> {
-        if amount == 0 { return Ok(()); }
-        anchor_lang::system_program::transfer(
-            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
-                from: payer.to_account_info(),
-                to: destination.to_account_info(),
-            }), amount,
-        )
-    }
+pub use crate::payments::uqp_transfer_native as transfer_native;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
-    #[inline(never)]
-    pub fn transfer_native_unchecked<'info>(
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: &AccountInfo<'info>,
-        amount: u64,
-    ) -> Result<()> {
-        anchor_lang::system_program::transfer(
-            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
-                from: payer.to_account_info(),
-                to: destination.clone(),
-            }), amount,
-        )
-    }
+pub use crate::payments::uqp_transfer_native_unchecked as transfer_native_unchecked;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
-    #[inline(never)]
-    pub fn transfer_native_curve_unchecked<'info>(
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: &&AccountInfo<'info>,
-        amount: u64,
-    ) -> Result<()> {
-        anchor_lang::system_program::transfer(
-            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
-                from: payer.to_account_info(),
-                to: destination.to_account_info(),
-            }), amount,
-        )
-    }
+pub use crate::payments::uqp_transfer_native_curve_unchecked as transfer_native_curve_unchecked;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
     #[inline(never)]
     pub fn transfer_from_user<'info>(
@@ -3062,20 +3062,20 @@ pub mod user_quote_payments {
             token_program, from, to, authority, quote_decimals, quote_mint, amount, &[],
         )
     }
-    #[inline(never)]
-    pub fn transfer_native_owned<'info>(
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: AccountInfo<'info>,
-        amount: u64,
-    ) -> Result<()> {
-        anchor_lang::system_program::transfer(
-            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
-                from: payer.to_account_info(),
-                to: destination.clone(),
-            }), amount,
-        )
-    }
+pub use crate::payments::uqp_transfer_native_owned as transfer_native_owned;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
     #[inline(never)]
     pub fn transfer_from_user_owned<'info>(
@@ -3098,7 +3098,7 @@ pub mod user_quote_payments {
             token_program, from, to, authority, quote_decimals, quote_mint, amount, &[],
         )
     }
-    #[inline(never)] pub fn transfer_native_curve<'info>(system_program: &AccountInfo<'info>, payer: &Signer<'info>, destination: &&mut Account<'info, BondingCurve>, amount: u64) -> Result<()> { if amount == 0 { return Ok(()); } anchor_lang::system_program::transfer(CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer { from: payer.to_account_info(), to: destination.to_account_info() }), amount) }
+pub use crate::payments::uqp_transfer_native_curve as transfer_native_curve;
     #[inline(never)]
     pub fn transfer_native_recipient<'info>(
         system_program: &AccountInfo<'info>,

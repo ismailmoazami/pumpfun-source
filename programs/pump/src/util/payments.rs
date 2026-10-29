@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::prelude::*;use anchor_spl::token_interface::{self,Mint,TokenAccount,TokenInterface,TransferChecked};use anchor_lang::solana_program::{instruction::{Instruction,AccountMeta},program::{invoke,invoke_signed},program_error::ProgramError};
 use crate::create_v2::{CreateV2,mayhem_interface};use crate::*;use crate::trade_types::{BondingCurve,TradeEvent,Shareholder};use crate::pump_fees::accounts::SharingConfig;
 
 #[inline(never)]pub fn initialize_mayhem<'info>(ctx:&Context<'_, '_, '_, 'info, CreateV2<'info>>)->Result<()>{
@@ -71,4 +71,290 @@ pub fn trade_event(curve:&BondingCurve,global:&Global,volume:&crate::UserVolumeA
         creator_fee_unclaimed:curve.creator_fee,
         unparsed_trailing_field,
     }
+}
+    #[inline(never)]
+    pub fn uqp_transfer_native_unchecked<'info>(
+        system_program: &AccountInfo<'info>,
+        payer: &Signer<'info>,
+        destination: &AccountInfo<'info>,
+        amount: u64,
+    ) -> Result<()> {
+        anchor_lang::system_program::transfer(
+            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
+                from: payer.to_account_info(),
+                to: destination.clone(),
+            }), amount,
+        )
+    }
+#[inline(never)]
+pub fn migrate_transfer_native<'info>(system_program:&AccountInfo<'info>,source:&UncheckedAccount<'info>,destination:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1])->Result<()>{
+ if amount==0{return Ok(());}
+ anchor_lang::system_program::transfer(CpiContext::new_with_signer(system_program.clone(),anchor_lang::system_program::Transfer{from:source.to_account_info(),to:destination.clone()},signer_seeds),amount)
+}
+#[inline(never)]
+pub fn legacy_transfer<'info>(
+    system_program: &AccountInfo<'info>,
+    payer: &Signer<'info>,
+    destination: &AccountInfo<'info>,
+    amount: u64,
+) -> Result<()> {
+    if amount == 0 {
+        return Ok(());
+    }
+    anchor_lang::system_program::transfer(
+            CpiContext::new(
+                system_program.clone(),
+                anchor_lang::system_program::Transfer {
+                    from: payer.to_account_info(),
+                    to: destination.clone(),
+                },
+            ),
+            amount,
+        )
+}
+    #[inline(never)] pub fn uqp_transfer_native_curve<'info>(system_program: &AccountInfo<'info>, payer: &Signer<'info>, destination: &&mut Account<'info, BondingCurve>, amount: u64) -> Result<()> { if amount == 0 { return Ok(()); } anchor_lang::system_program::transfer(CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer { from: payer.to_account_info(), to: destination.to_account_info() }), amount) }
+#[inline(never)]
+pub(crate) fn collect_transfer_native<'info>(
+ system_program:&AccountInfo<'info>,source:&AccountInfo<'info>,destination:&AccountInfo<'info>,
+ amount:u64,signer_seeds:&[&[&[u8]]],
+)->Result<()>{
+ if amount==0{return Ok(());}
+ anchor_lang::system_program::transfer(
+  CpiContext::new_with_signer(system_program.clone(),anchor_lang::system_program::Transfer{from:source.clone(),to:destination.clone()},signer_seeds),
+  amount,
+ )
+}
+    #[inline(never)]
+    pub fn uqp_transfer_native_owned<'info>(
+        system_program: &AccountInfo<'info>,
+        payer: &Signer<'info>,
+        destination: AccountInfo<'info>,
+        amount: u64,
+    ) -> Result<()> {
+        anchor_lang::system_program::transfer(
+            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
+                from: payer.to_account_info(),
+                to: destination.clone(),
+            }), amount,
+        )
+    }
+#[inline(never)]
+pub fn migratenp_transfer_native<'info>(
+    system_program: &AccountInfo<'info>, payer: &Signer<'info>,
+    destination: &UncheckedAccount<'info>, amount: u64,
+) -> Result<()> {
+    if amount == 0 { return Ok(()); }
+    anchor_lang::system_program::transfer(
+        CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
+            from: payer.to_account_info(), to: destination.to_account_info(),
+        }), amount,
+    )
+}
+    #[inline(never)]
+    pub fn uqp_transfer_native<'info>(
+        system_program: &AccountInfo<'info>,
+        payer: &Signer<'info>,
+        destination: &Account<'info, BondingCurve>,
+        amount: u64,
+    ) -> Result<()> {
+        if amount == 0 { return Ok(()); }
+        anchor_lang::system_program::transfer(
+            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
+                from: payer.to_account_info(),
+                to: destination.to_account_info(),
+            }), amount,
+        )
+    }
+    #[inline(never)]
+    pub fn uqp_transfer_native_curve_unchecked<'info>(
+        system_program: &AccountInfo<'info>,
+        payer: &Signer<'info>,
+        destination: &&AccountInfo<'info>,
+        amount: u64,
+    ) -> Result<()> {
+        anchor_lang::system_program::transfer(
+            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
+                from: payer.to_account_info(),
+                to: destination.to_account_info(),
+            }), amount,
+        )
+    }
+#[inline(never)]
+pub fn mhc_transfer_quote_out<'info>(token_program:&AccountInfo<'info>,from:&UncheckedAccount<'info>,to:&InterfaceAccount<'info,TokenAccount>,authority:&Account<'info,BondingCurve>,decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1])->Result<()>{
+    anchor_spl::token_2022::transfer_checked(CpiContext::new_with_signer(token_program.clone(),anchor_spl::token_2022::TransferChecked{from:from.to_account_info(),to:to.to_account_info(),authority:authority.to_account_info(),mint:mint.clone()},signer_seeds),amount,decimals)
+}
+/// Transfer curve tokens through the selected token program and signer seeds.
+#[inline(never)]
+pub fn v2_transfer_curve_tokens<'info>(
+    token_program: &Interface<'info, TokenInterface>,
+    source: &InterfaceAccount<'info, TokenAccount>,
+    destination: &InterfaceAccount<'info, TokenAccount>,
+    authority: &Account<'info, BondingCurve>,
+    decimals: u8,
+    mint: &AccountInfo<'info>,
+    amount: u64,
+    signer_seeds: &[&[&[u8]]; 1],
+) -> Result<()> {
+    if amount == 0 {
+        return Ok(());
+    }
+    token_interface::transfer_checked(
+        CpiContext::new_with_signer(
+            token_program.to_account_info(),
+            TransferChecked {
+                from: source.to_account_info(),
+                to: destination.to_account_info(),
+                authority: authority.to_account_info(),
+                mint: mint.clone(),
+            },
+            signer_seeds,
+        ),
+        amount,
+        decimals,
+    )
+}
+/// Transfer user tokens through the selected token program.
+#[inline(never)]
+pub fn v2_transfer_user_tokens<'info>(
+    token_program: &Interface<'info, TokenInterface>,
+    source: &InterfaceAccount<'info, TokenAccount>,
+    destination: &InterfaceAccount<'info, TokenAccount>,
+    authority: &AccountInfo<'info>,
+    decimals: u8,
+    mint: &AccountInfo<'info>,
+    amount: u64,
+) -> Result<()> {
+    token_interface::transfer_checked(
+        CpiContext::new(
+            token_program.to_account_info(),
+            TransferChecked {
+                from: source.to_account_info(),
+                to: destination.to_account_info(),
+                authority: authority.clone(),
+                mint: mint.clone(),
+            },
+        ),
+        amount,
+        decimals,
+    )
+}
+pub fn collect_transfer_tokens<'info>(
+ token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
+ source:&AccountInfo<'info>,destination:&AccountInfo<'info>,authority:&AccountInfo<'info>,
+ decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1],
+)->Result<()>{
+ if amount==0{return Ok(());}
+ anchor_spl::token_interface::transfer_checked(
+  CpiContext::new_with_signer(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
+   from:source.clone(),to:destination.clone(),authority:authority.clone(),mint:mint.clone(),
+  },signer_seeds),amount,decimals,
+ )
+}
+#[inline(never)]
+pub fn collect_transfer_user_tokens_ref<'info>(
+ token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
+ source:&InterfaceAccount<'info,anchor_spl::token_interface::TokenAccount>,
+ destination:&InterfaceAccount<'info,anchor_spl::token_interface::TokenAccount>,
+ authority:&&Signer<'info>,decimals:u8,mint:&AccountInfo<'info>,amount:u64,
+)->Result<()>{
+ anchor_spl::token_interface::transfer_checked(
+  CpiContext::new(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
+   from:source.to_account_info(),to:destination.to_account_info(),authority:authority.to_account_info(),mint:mint.clone(),
+  }),amount,decimals,
+ )
+}
+/// Transfer curve tokens with the curve authority passed by double reference.
+#[inline(never)]
+pub fn v2_transfer_curve_tokens_ref<'info>(
+    token_program: &Interface<'info, TokenInterface>,
+    source: &InterfaceAccount<'info, TokenAccount>,
+    destination: &InterfaceAccount<'info, TokenAccount>,
+    authority: &&mut Account<'info, BondingCurve>,
+    decimals: u8,
+    mint: &AccountInfo<'info>,
+    amount: u64,
+    signer_seeds: &[&[&[u8]]; 1],
+) -> Result<()> {
+    if amount == 0 {
+        return Ok(());
+    }
+    token_interface::transfer_checked(
+        CpiContext::new_with_signer(
+            token_program.to_account_info(),
+            TransferChecked {
+                from: source.to_account_info(),
+                to: destination.to_account_info(),
+                authority: authority.to_account_info(),
+                mint: mint.clone(),
+            },
+            signer_seeds,
+        ),
+        amount,
+        decimals,
+    )
+}
+/// Transfer quote tokens through the selected token program and signer seeds.
+#[inline(never)]
+pub fn v2_transfer_quote_tokens<'info>(
+    token_program: &Interface<'info, TokenInterface>,
+    source: &AccountInfo<'info>,
+    destination: &AccountInfo<'info>,
+    authority: AccountInfo<'info>,
+    decimals: u8,
+    mint: &AccountInfo<'info>,
+    amount: u64,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<()> {
+    if amount == 0 {
+        return Ok(());
+    }
+    token_interface::transfer_checked(
+        CpiContext::new_with_signer(
+            token_program.to_account_info(),
+            TransferChecked {
+                from: source.clone(),
+                to: destination.clone(),
+                authority: authority.clone(),
+                mint: mint.clone(),
+            },
+            signer_seeds,
+        ),
+        amount,
+        decimals,
+    )
+}
+#[inline(never)]
+pub fn collect_transfer_user_quote_tokens<'info>(
+ token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
+ source:&UncheckedAccount<'info>,destination:&UncheckedAccount<'info>,authority:&AccountInfo<'info>,
+ decimals:u8,mint:&AccountInfo<'info>,amount:u64,
+)->Result<()>{
+ if amount==0{return Ok(());}
+ anchor_spl::token_interface::transfer_checked(
+  CpiContext::new(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
+   from:source.to_account_info(),to:destination.to_account_info(),authority:authority.clone(),mint:mint.clone(),
+  }),amount,decimals,
+ )
+}
+#[inline(never)]
+pub fn mhc_transfer_base_out<'info>(token_program:&AccountInfo<'info>,from:&InterfaceAccount<'info,TokenAccount>,to:&InterfaceAccount<'info,TokenAccount>,authority:&Account<'info,BondingCurve>,decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1])->Result<()>{
+    if amount==0{return Ok(());}
+    anchor_spl::token_2022::transfer_checked(CpiContext::new_with_signer(token_program.clone(),anchor_spl::token_2022::TransferChecked{from:from.to_account_info(),to:to.to_account_info(),authority:authority.to_account_info(),mint:mint.clone()},signer_seeds),amount,decimals)
+}
+#[inline(never)]
+pub fn collect_transfer_vault_tokens<'info>(
+ token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
+ source:&UncheckedAccount<'info>,destination:&UncheckedAccount<'info>,authority:&AccountInfo<'info>,
+ decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1],
+)->Result<()>{
+ anchor_spl::token_interface::transfer_checked(
+  CpiContext::new_with_signer(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
+   from:source.to_account_info(),to:destination.to_account_info(),authority:authority.clone(),mint:mint.clone(),
+  },signer_seeds),amount,decimals,
+ )
+}
+#[inline(never)]
+pub fn mhc_transfer_buyback_out<'info>(token_program:&AccountInfo<'info>,from:&UncheckedAccount<'info>,to:&UncheckedAccount<'info>,authority:&Account<'info,BondingCurve>,decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1])->Result<()>{
+    if amount==0{return Ok(());}
+    anchor_spl::token_2022::transfer_checked(CpiContext::new_with_signer(token_program.clone(),anchor_spl::token_2022::TransferChecked{from:from.to_account_info(),to:to.to_account_info(),authority:authority.to_account_info(),mint:mint.clone()},signer_seeds),amount,decimals)
 }

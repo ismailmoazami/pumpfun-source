@@ -212,30 +212,30 @@ pub fn collect<'info>(
  Ok(Some((amount,quote_mint.key())))
 }
 
-#[inline(never)]
-pub(crate) fn transfer_native<'info>(
- system_program:&AccountInfo<'info>,source:&AccountInfo<'info>,destination:&AccountInfo<'info>,
- amount:u64,signer_seeds:&[&[&[u8]]],
-)->Result<()>{
- if amount==0{return Ok(());}
- anchor_lang::system_program::transfer(
-  CpiContext::new_with_signer(system_program.clone(),anchor_lang::system_program::Transfer{from:source.clone(),to:destination.clone()},signer_seeds),
-  amount,
- )
-}
+pub(crate) use crate::payments::collect_transfer_native as transfer_native;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
-pub fn transfer_tokens<'info>(
- token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
- source:&AccountInfo<'info>,destination:&AccountInfo<'info>,authority:&AccountInfo<'info>,
- decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1],
-)->Result<()>{
- if amount==0{return Ok(());}
- anchor_spl::token_interface::transfer_checked(
-  CpiContext::new_with_signer(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
-   from:source.clone(),to:destination.clone(),authority:authority.clone(),mint:mint.clone(),
-  },signer_seeds),amount,decimals,
- )
-}
+pub use crate::payments::collect_transfer_tokens as transfer_tokens;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 pub fn execute(ctx:Context<CollectCreatorFeeV2>)->Result<()>{
  let a=&ctx.accounts;
@@ -245,46 +245,46 @@ pub fn execute(ctx:Context<CollectCreatorFeeV2>)->Result<()>{
  Ok(())
 }
 
-#[inline(never)]
-pub fn transfer_vault_tokens<'info>(
- token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
- source:&UncheckedAccount<'info>,destination:&UncheckedAccount<'info>,authority:&AccountInfo<'info>,
- decimals:u8,mint:&AccountInfo<'info>,amount:u64,signer_seeds:&[&[&[u8]];1],
-)->Result<()>{
- anchor_spl::token_interface::transfer_checked(
-  CpiContext::new_with_signer(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
-   from:source.to_account_info(),to:destination.to_account_info(),authority:authority.clone(),mint:mint.clone(),
-  },signer_seeds),amount,decimals,
- )
-}
+pub use crate::payments::collect_transfer_vault_tokens as transfer_vault_tokens;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
-#[inline(never)]
-pub fn transfer_user_tokens_ref<'info>(
- token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
- source:&InterfaceAccount<'info,anchor_spl::token_interface::TokenAccount>,
- destination:&InterfaceAccount<'info,anchor_spl::token_interface::TokenAccount>,
- authority:&&Signer<'info>,decimals:u8,mint:&AccountInfo<'info>,amount:u64,
-)->Result<()>{
- anchor_spl::token_interface::transfer_checked(
-  CpiContext::new(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
-   from:source.to_account_info(),to:destination.to_account_info(),authority:authority.to_account_info(),mint:mint.clone(),
-  }),amount,decimals,
- )
-}
+pub use crate::payments::collect_transfer_user_tokens_ref as transfer_user_tokens_ref;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
-#[inline(never)]
-pub fn transfer_user_quote_tokens<'info>(
- token_program:&Interface<'info,anchor_spl::token_interface::TokenInterface>,
- source:&UncheckedAccount<'info>,destination:&UncheckedAccount<'info>,authority:&AccountInfo<'info>,
- decimals:u8,mint:&AccountInfo<'info>,amount:u64,
-)->Result<()>{
- if amount==0{return Ok(());}
- anchor_spl::token_interface::transfer_checked(
-  CpiContext::new(token_program.to_account_info(),anchor_spl::token_interface::TransferChecked{
-   from:source.to_account_info(),to:destination.to_account_info(),authority:authority.clone(),mint:mint.clone(),
-  }),amount,decimals,
- )
-}
+pub use crate::payments::collect_transfer_user_quote_tokens as transfer_user_quote_tokens;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 #[event]
 #[derive(Clone)]
 pub struct CollectCreatorFeeEvent{pub timestamp:i64,pub creator:Pubkey,pub creator_fee:u64,pub quote_mint:Pubkey}
