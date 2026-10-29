@@ -188,25 +188,25 @@ pub fn validate_buyback_fee_recipient_account(global:&Global,recipient:&AccountI
  require_keys_eq!(recipient.key(),anchor_spl::associated_token::get_associated_token_address_with_program_id(&owner,quote_mint,quote_token_program),anchor_lang::error::ErrorCode::ConstraintSeeds);
  Ok(())
 }
+fn check_quote(a:&SellV3)->Result<(bool,Option<crate::trade::native_transfer_fee::Fee>)>{
+ let is_native=quote_is_native(&a.bonding_curve);
+ let quote_mint=a.quote_mint.key();
+ let quote_token_program=a.quote_token_program.key();
+ if !is_native{
+  crate::buy_v2::admit_associated_token_account(a.associated_quote_bonding_curve.as_ref(),&a.bonding_curve.to_account_info(),quote_mint,quote_token_program,&a.quote_mint.to_account_info(),&a.quote_token_program.to_account_info(),false,a.user.as_ref(),a.system_program.as_ref())?;
+  crate::buy_v2::check_token_account(a.associated_quote_user.as_ref(),a.user.as_ref(),quote_mint,quote_token_program)?;
+ }
+ validate_buyback_fee_recipient_account(&a.global,a.buyback_fee_recipient.as_ref(),is_native,&quote_mint,&quote_token_program)?;
+ const NO_FEE:Option<crate::trade::native_transfer_fee::Fee>=None;let fee=if is_native{NO_FEE}else{crate::transfer_fee_recovered::get_transfer_fee(&a.quote_mint.to_account_info())?};
+ Ok((is_native,fee))
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#[inline(never)]
+fn v3_trade_fees(a:&SellV3,amount:u64)->Result<TradeFees>{
+    if a.global.whitelist_pda==a.user.key(){return Ok(TradeFees::default());}
+    let curve:&BondingCurve=&a.bonding_curve;
+    crate::legacy_sell::fee_math::get_fees(&a.global,curve,&a.fee_config,a.fee_config.to_account_info().data_len(),buy_fee_market_cap(curve,&a.base_mint)?,amount)
+}
 
 
 
@@ -402,12 +402,12 @@ pub struct PostComplete{pub fees:TradeFees,pub base_out:u64,pub quote_in:u64,pub
 
 
 
-#[inline(never)]
-fn v3_trade_fees(a:&SellV3,amount:u64)->Result<TradeFees>{
-    if a.global.whitelist_pda==a.user.key(){return Ok(TradeFees::default());}
-    let curve:&BondingCurve=&a.bonding_curve;
-    crate::legacy_sell::fee_math::get_fees(&a.global,curve,&a.fee_config,a.fee_config.to_account_info().data_len(),buy_fee_market_cap(curve,&a.base_mint)?,amount)
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 
 
@@ -527,32 +527,32 @@ fn v3_post_complete(a:&SellV3,pool_base:u64,pool_quote:u64,excess:u64)->Result<P
     let fees=v3_trade_fees(a,quote_in)?;
     Ok(PostComplete{fees,base_out:excess,quote_in,pool_base_before:pool_base,pool_quote_before:pool_quote})
 }
-#[inline(never)]
-fn v3_emit_buy(ctx:&mut Context<SellV3>,amount:u64,quote:u64,fees:&TradeFees,buyback_fee:u64,quote_transfer_fee:u64,ix_name:&str,post:&Option<PostComplete>,post_buyback_fee:u64)->Result<()>{
-
-
-
-    let timestamp=Clock::get()?.unix_timestamp;
-    let event=crate::multi_hop_curve::trade_event(&ctx.accounts.bonding_curve,&ctx.accounts.global,&ctx.accounts.user_volume_accumulator,&ctx.accounts.user.key(),&ctx.accounts.base_mint.key(),true,amount,quote,fees,buyback_fee,quote_transfer_fee,ix_name,timestamp);
-
-
-
-
-
-
-
-
-
-
-
-    emit!(event);emit_cpi!(event);
-    if ctx.accounts.bonding_curve.real_token_reserves==0{ctx.accounts.bonding_curve.complete=true;
-        let completion=crate::trade_types::CompleteEvent{mint:ctx.accounts.base_mint.key(),user:ctx.accounts.user.key(),bonding_curve:ctx.accounts.bonding_curve.key(),timestamp,quote_mint:ctx.accounts.bonding_curve.quote_mint};
-        emit!(completion);emit_cpi!(completion);
-    if let Some(p)=post{let post_event=post_complete_buy_event(p,ctx.accounts.user.key(),ctx.accounts.base_mint.key(),ctx.accounts.bonding_curve.key(),ctx.accounts.bonding_curve.quote_mint,timestamp,post_buyback_fee)?;
-        emit!(post_event);emit_cpi!(post_event);}}
-    Ok(())
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 // layout-pad(132): aligns the next Source site with the original line
 
 
@@ -1004,18 +1004,18 @@ pub fn buy_exact_quote(mut ctx:Context<SellV3>,spendable_quote_in:u64,min_tokens
     let (buyback,post_buyback)=v3_execute_buy(a,ctx.bumps.bonding_curve,is_sol,amount,quote,fees.protocol_fee,fees.creator_fee,post.as_ref(),costs.0,costs.1,&quote_fee)?;
     v3_emit_buy(&mut ctx,amount,quote,&fees,buyback,costs.2,"buy_exact_quote_in",&post,post_buyback)
 }
-
-
-
-
-
-
-
-
-
-
-
-
+#[inline(never)]
+fn v3_emit_buy(ctx:&mut Context<SellV3>,amount:u64,quote:u64,fees:&TradeFees,buyback_fee:u64,quote_transfer_fee:u64,ix_name:&str,post:&Option<PostComplete>,post_buyback_fee:u64)->Result<()>{
+    let timestamp=Clock::get()?.unix_timestamp;
+    let event=crate::multi_hop_curve::trade_event(&ctx.accounts.bonding_curve,&ctx.accounts.global,&ctx.accounts.user_volume_accumulator,&ctx.accounts.user.key(),&ctx.accounts.base_mint.key(),true,amount,quote,fees,buyback_fee,quote_transfer_fee,ix_name,timestamp);
+    emit!(event);emit_cpi!(event);
+    if ctx.accounts.bonding_curve.real_token_reserves==0{ctx.accounts.bonding_curve.complete=true;
+        let completion=crate::trade_types::CompleteEvent{mint:ctx.accounts.base_mint.key(),user:ctx.accounts.user.key(),bonding_curve:ctx.accounts.bonding_curve.key(),timestamp,quote_mint:ctx.accounts.bonding_curve.quote_mint};
+        emit!(completion);emit_cpi!(completion);
+    if let Some(p)=post{let post_event=post_complete_buy_event(p,ctx.accounts.user.key(),ctx.accounts.base_mint.key(),ctx.accounts.bonding_curve.key(),ctx.accounts.bonding_curve.quote_mint,timestamp,post_buyback_fee)?;
+        emit!(post_event);emit_cpi!(post_event);}}
+    Ok(())
+}
 
 
 
@@ -1209,18 +1209,18 @@ pub fn sell(ctx:Context<SellV3>,amount:u64,min_sol_output:u64)->Result<()> {sell
 
 
 
-fn check_quote(a:&SellV3)->Result<(bool,Option<crate::trade::native_transfer_fee::Fee>)>{
- let is_native=quote_is_native(&a.bonding_curve);
- let quote_mint=a.quote_mint.key();
- let quote_token_program=a.quote_token_program.key();
- if !is_native{
-  crate::buy_v2::admit_associated_token_account(a.associated_quote_bonding_curve.as_ref(),&a.bonding_curve.to_account_info(),quote_mint,quote_token_program,&a.quote_mint.to_account_info(),&a.quote_token_program.to_account_info(),false,a.user.as_ref(),a.system_program.as_ref())?;
-  crate::buy_v2::check_token_account(a.associated_quote_user.as_ref(),a.user.as_ref(),quote_mint,quote_token_program)?;
- }
- validate_buyback_fee_recipient_account(&a.global,a.buyback_fee_recipient.as_ref(),is_native,&quote_mint,&quote_token_program)?;
- const NO_FEE:Option<crate::trade::native_transfer_fee::Fee>=None;let fee=if is_native{NO_FEE}else{crate::transfer_fee_recovered::get_transfer_fee(&a.quote_mint.to_account_info())?};
- Ok((is_native,fee))
-}
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 fn quote_is_native(curve:&BondingCurve)->bool{curve.quote_mint==Pubkey::default()}
 
 
