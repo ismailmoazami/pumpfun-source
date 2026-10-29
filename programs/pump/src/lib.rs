@@ -3099,21 +3099,21 @@ pub use crate::user_payments::transfer_from_user_owned as transfer_from_user_own
 // layout-pad
 // layout-pad
 pub use crate::payments::uqp_transfer_native_curve as transfer_native_curve;
-    #[inline(never)]
-    pub fn transfer_native_recipient<'info>(
-        system_program: &AccountInfo<'info>,
-        payer: &Signer<'info>,
-        destination: &&UncheckedAccount<'info>,
-        amount: u64,
-    ) -> Result<()> {
-        if amount == 0 { return Ok(()); }
-        anchor_lang::system_program::transfer(
-            CpiContext::new(system_program.clone(), anchor_lang::system_program::Transfer {
-                from: payer.to_account_info(),
-                to: destination.to_account_info(),
-            }), amount,
-        )
-    }
+pub use crate::payments::uqp_transfer_native_recipient as transfer_native_recipient;
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
+// layout-pad
 
 pub use crate::user_payments::transfer_from_user_recipient as transfer_from_user_recipient;
 // layout-pad
