@@ -1,50 +1,95 @@
 # Lane w3-raw-layout (wave 3): whole-program raw layout
 
-Base: origin/main 665499915 (1022 normalized / 276 raw; 13 unmatched windows, no ours-only units,
-`.text` 0x1b5600 vs original 0x1b58d0, i.e. -720 B, all from the 13 size deltas).
+Started from origin/main 665499915 (1022 / 276) and was rebased twice. It is now on b08fd9082
+(1023 normalized / 276 raw; 12 unmatched windows). All changes move code without changing line
+numbers. There are zero normalized or raw losses, and all 12 unmatched windows keep their exact
+ratio and size (`tools/unm13.sh`).
 
-Tools (`tools/`, build on layout-order-census's `fastmodel.py`/`moves.py`/`refine.py`):
+Official raw cannot move until the unmatched windows reach their original sizes. `.text` differs
+from the original by a few hundred bytes, all of it from the size deltas of the unmatched windows. The lane
+therefore measures layout readiness with the model (`tools/m13.py` builds on layout-order-census's
+`fastmodel.py`, which reproduces the official raw set exactly).
 
-| tool | what |
+## Metrics
+
+| metric | main b08fd90 | this lane |
+| --- | ---: | ---: |
+| official normalized / raw | 1023 / 276 | 1023 / 276 |
+| data-offset-equal windows (every data lddw already at the original's in-section offset) | 683 | **1021** of 1023 |
+| `.rodata` bytes aligned with the original (of 32031) | 31682 | 31993 |
+| `programs/pump/src/*.rs` path-string order mismatches (of 33) | 32 | 1 (admin_cto internal) |
+| model raw once the unmatched match in size, full original order, data as built | 683 | **1017** |
+| same, original L order (U and D as built) | 481 | 653 |
+| P13 (our order, data assumed equal) | 416 | 428 |
+| LIS of paired order / L adjacent breaks | 884 / 136 | **964 / 30** |
+
+The two remaining data mismatches are a `.data.rel.ro` entry pair. Its creation order comes from the
+U block's hash order (TryFromIntError Debug against GlobalVolumeAccumulator Debug). The rest is a
+cst4 S/Y swap whose first user is admin_cto's closure (an unmatched window).
+
+## Mechanisms (all confirmed by builds)
+
+1. **.rodata/.data.rel.ro order is rustc codegen order.** The pre-optimization IR (`tools/capture.py
+   ... -C no-prepopulate-passes`, `tools/irg.py`) shows that every constant is created when the first
+   function referencing it is codegen'd. Functions are codegen'd in mono-item order: local items by
+   def index, and `#[inline]` local fns are still mono items at their def position. Statics are
+   emitted at their def position. Macro output (`declare_id!`, `declare_program!`) comes in expansion order.
+   MIR inlining matters: a constant that a MIR-inlined callee references is created in the caller.
+   - legacy `buy.rs` mounted second (it keeps `#[inline]`; its `native_payments` module becomes
+     `legacy_native_payments`). The previous lane's dead end was dropping `#[inline]`; it is not needed.
+   - `declare_id!` placed before `declare_program!(pump_amm)`; MAYHEM_ID comes from macro expansion after pump_fees.
+   - `process_cashback_inner`: the `MissingCashbackAccounts` error is spelled let-else/err!. The sell.rs
+     Source must be created in the parent's own MIR before the PDA seed. In an `ok_or_else` closure,
+     the closure mono item is codegen'd after the parent (964 -> 993).
+   - `DistributionCurve` is defined after `migrate::execute`. The original first uses the
+     `Result::unwrap` message there (993 -> 1013).
+   - `time_index` has no `#[inline]`. Its expect string and Location sit at its own def position (after
+     add_sol_volume), so the MIR inliner did not inline it into update/update_schedule/end_day (1013 -> 1019).
+2. **The original module list is in file order.** This extends layout-order-census's finding to subdirectories:
+   - `creator/distribute_creator_fee_v2.rs` comes before `distribute_creator_fees.rs`, and `minimum`
+     is inline between get_distribution_amounts and execute.
+   - token_incentives: claim, close, init, sync (volume_sync), volume_accumulator. The close/init
+     handler bodies are outlined module fns there, and the program fns are thin wrappers.
+   - quote_control: `set_quote_control.rs` (admin, mint_reserves, reserves_admin, with their derives) sits
+     between initialize_quote_control and state.
+   - lib.rs body: trade_types sits after the Global impls and before buy_quote (the original lib.rs had it
+     inline). `split_protocol_fee` sits between the impl Global blocks, and `tokens_for_quote` between
+     sell_quote and buy_fee_market_cap.
+3. **Helper runs that have no Source sites.** `util/payments.rs`, mounted after util/fee.rs, holds the
+   original's 25-function run: initialize_mayhem, OptionBool deserialize, sharing_config_shareholders,
+   trade_event, and 21 native/token transfer helpers from 9 modules, in the original's interleaved order.
+   After util/transfer_fee.rs come `util/withheld.rs`, the curve `quote_payments` module and
+   `util/user_payments.rs`. **Visibility must be kept exactly**: making a `pub(crate)` fn `pub` gives it
+   external linkage, which changes codegen (t08 lost 0x2b490/0x33c50/0x8d5c8).
+4. **MergeFunctions**: the lexicographically smallest mangled name survives, and its body sits at its
+   own def position.
+   - The uqp curve and recipient fns (identical bodies) move together.
+   - `declare_program!(mayhem)` comes from a minimal `idls/mayhem.json` (one instruction, flags taken from
+     the old emulation; only one MAYHEM_ID static is emitted, as in the original). The collect module is
+     mounted as `creator::collect_creator_fee` so that mayhem's 2632-B ToAccountInfos is the smallest
+     name in its group.
+   - The pump_amm IDL has no `sweep_creator_fee`/`sweep_protocol_fee`: the 3144-B group survives at
+     pump_amm ClaimTokenIncentives' position, as in the original.
+5. Site-free fns moved into pad lines in collect_creator_fee, migrate, migrate_v2, create_v2,
+   volume_accumulator and trade_v3. Any panic Location lines that matter were checked first (`tools/locs.py`).
+
+## Not kept / rejected
+
+| attempt | result |
 | --- | --- |
-| `m13.py` | model helpers for the 13-unmatched world: `p13` (raw once the 13 match in size and code, data equal), `datamap`/`p13real` (same, but a window with data lddw counts only if every data operand already points at the original's in-section offset), `aligned` |
-| `metrics.py` | one-line metric set for a build: model raw, P13, P13 with real data, P13 under the original L order / full original order, data-offset-equal windows, LIS / L breaks |
-| `trial.sh` | fastbuild + score.py (vs the wave-3 base) + refine + metrics |
-| `capture.py` | experiment-only `--emit link,obj,llvm-ir` capture (pass `-C no-prepopulate-passes` for pre-opt IR) |
-| `irglob.py` | IR global order vs first-referencing function (nested refs propagated) |
-| `ldiff13.py`, `lisL.py`, `prefix.py`, `plan.py`, `scen.py`, `unm.py`, `sites.py` | L-order diff, non-LIS units with their Source sites, prefix model, move plans, scenario ceilings, size deltas, sites per window |
+| `067f03ab` DistributeCreatorFeesV2 struct into the v2 file (derive order) | loses 0x2d920/0x2fa60: derive output order changes distribute_tokens codegen |
+| t08 transfer helpers made `pub` | loses 3 windows (linkage) |
+| `80989f5b` buy_v2 / buy_exact_quote_in_v2 as `#[inline(never)]` program fns | P13 428 -> 511 (+83), but buy_v2 0.95334 -> 0.95256 on main and 0.97629 -> 0.96761 on w3-buyhandler's branch; left to the handler lanes |
 
-## Ceilings on the base (model reproduces the official 276 exactly)
+## What is left for raw
 
-| scenario | raw |
-| --- | ---: |
-| today's sizes, original L order | 276 (no gain left) |
-| today's sizes, original U / D / U+D order | 279 / 290 / 293 |
-| P13 (13 fixed, our order) | 416 |
-| P13 with L in original order | 654 |
-| P13 with full original order | 1018 |
-| P13 full order, data operands as built | 683 (base) |
-
-U and D hash order cannot be reached from source: D-block within-crate order is fixed by the
-dependency crates' own metadata (registry crates, independent of `programs/pump`), and U by the
-root and anchor StableCrateIds, which depend on the cargo/rustc environment.
-
-## Mechanism: .rodata order is rustc codegen order
-
-Pre-optimization IR (`capture.py ... -C no-prepopulate-passes`) shows every non-merged constant
-(`.rodata..Lalloc_*`, statics) is created when the first function referencing it is codegen'd, and
-functions are codegen'd in mono-item order: local items by def index, `#[inline]` local functions
-included (they are still mono items at their def position; LLVM drops them later). Statics are
-emitted at their own def position. Macro-expanded items (`declare_id!`, `declare_program!`) get
-def indices in expansion order, after hand-written items and derives.
-
-## Kept changes (all line-neutral, official 1022/276, zero losses)
-
-| trial | change | data-offset-equal windows | rodata bytes aligned |
-| --- | --- | ---: | ---: |
-| base | | 683 | 31680 / 32031 |
-| t01 `c1bc56ca` | mount `buy.rs` (legacy_buy, keeps `#[inline]`) second, after `account_name`; its `native_payments` submodule becomes the top-level `legacy_native_payments` mount at the old position (`pub use ... as native_payments` keeps paths). The original stream has `buy.rs` + `bonding-curve` right after `anchor:idl`. Also fixes the cst4 swap at 0x3bc | 701 | 31709 |
-| t02 `aec0dd50` | `declare_id!` (pump ID) moved before `declare_program!(pump_amm)`; MAYHEM_ID is a `declare_id!` static in `mod mayhem_program` after `declare_program!(pump_fees)` (create_v2 re-exports it). Original stream: pump ID before the pump_amm IDs, MAYHEM_ID right after pump_fees' `Global` | 871 | 31772 |
-
-The previous lane's "drop `#[inline]` on legacy buy_exact_sol_in" dead end is not needed: the def
-position alone moves the constants, and 0x14f4e0 stays matched.
+- The five v2/v3 handler bodies (buy_v2, buy_exact_quote_in_v2, trade::buy/buy_exact_quote/sell) sit
+  at the original #[program] position, between `create` and `buy`. With them there, P13 would rise
+  428 -> 511 -> 623 (model, `tools/plan.py`). That is the largest remaining L-order item, and it belongs
+  to the handler lanes: their final match has to be the program-fn form.
+- 0x119c50 (2216-B ToAccountInfos group) sits at the mayhem slot in the original. The original mayhem
+  IDL probably had a second 8-account instruction, sorted before initialize_mayhem_state, whose infos
+  impl was the smallest name in that group.
+- multi_hop native_buyback/transfer_input sit before the swap_hop unit, but after swap_hop's nested
+  fns. In the original, swap_hop's nested fns are not children of the swap_hop unit.
+- U and D hash order: unreachable from source (crate metadata).
